@@ -1,0 +1,111 @@
+$(function () {
+populateDropdownList(getDistinctNames());
+
+});
+
+function itemClicked(aElem) {
+let studentName = aElem.text;
+let studentData = getStudentData(studentName);
+let totalCH = totalCreditHours(studentData);
+let cgpa = calculateCGPA(studentData);
+
+$("#studentName").text(studentName);
+$("#dropdownMenuButton").text(studentName);
+$("#studentTotalCreditHours").text(totalCH);
+$("#studentCGPA").text(cgpa);
+fillTable(studentData);
+}
+
+function populateDropdownList(distinctStudents)
+{
+distinctStudents.sort();
+let dropdownMenu = $("#studentLoginDropdownMenu");
+dropdownMenu.empty();
+for(let x=0; x<distinctStudents.length; x++)
+{
+dropdownMenu.append(`<a href="#" class="dropdown-item studentLoginItem" onclick="itemClicked(this)">${distinctStudents[x]}</a>`);
+}
+}
+
+function fillTable(studentData)
+{
+let tBody = $("#studentInfoTableBody");
+tBody.empty();
+
+for(let x in studentData)
+{
+tBody.append(`
+<tr>
+    <td>${studentData[x].Name}</td>
+    <td>${studentData[x].Course}</td>
+    <td>${studentData[x].CreditHours}</td>
+    <td>${studentData[x].Teacher}</td>
+    <td>${studentData[x].TotalMarks}</td>
+    <td>${studentData[x].ObtainedMarks}</td>
+    <td>${studentData[x].Grade}</td>
+</tr>
+`);
+}
+}
+
+function getDistinctNames(studentData) {
+let sNames = [];
+for (var i in studentsData) {
+let name = studentsData[i].Name;
+if (sNames.indexOf(name) == -1) {
+sNames.push(name)
+}
+}
+return sNames
+}
+
+function getStudentData(name) {
+studentData = [];
+for (let i in studentsData) {
+if (studentsData[i].Name === name) {
+//cloning object
+let dataObj = Object.assign({}, studentsData[i]);
+dataObj["Grade"] = calculateGrade(dataObj.TotalMarks, dataObj.ObtainedMarks);
+studentData.push(dataObj)
+}
+}
+return studentData;
+}
+
+function calculateGrade(totalMarks, obtainedMarks) {
+let percentMarks = (obtainedMarks / totalMarks) * 100;
+
+for (var index in gradesList) {
+if (gradesList[index].minMarks < percentMarks) {
+return gradesList[index].grade;
+}
+}
+}
+
+function calculateGradePoints(grade) {
+for (let index in gradesList) {
+if (gradesList[index].grade == grade)
+return gradesList[index].gradePoints
+}
+
+}
+
+function totalCreditHours(studentData) {
+let totalCreditHours = 0;
+for (let i in studentData) {
+totalCreditHours += studentsData[i].CreditHours;
+}
+return totalCreditHours;
+}
+
+function calculateCGPA(studentData) {
+let totalCreditHours = 0;
+let sumCHGP = 0;
+for (var i in studentData) {
+var GP = calculateGradePoints(studentData[i].Grade);
+sumCHGP += parseFloat(studentData[i].CreditHours) * parseFloat(GP);
+totalCreditHours += studentsData[i].CreditHours;
+}
+return (sumCHGP / totalCreditHours).toFixed(3);
+}
+
